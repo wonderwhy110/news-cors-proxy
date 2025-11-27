@@ -2,14 +2,12 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
-  // РАСШИРЬТЕ методы - добавьте PATCH
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-auth-token',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS' // ← ДОБАВЬТЕ PATCH
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
   };
 
-  // OPTIONS запрос
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -23,17 +21,31 @@ exports.handler = async (event) => {
     
     console.log('Proxying to:', backendUrl, 'Method:', event.httpMethod);
 
-    // Проксируем запрос (включая PATCH)
-    const response = await fetch(backendUrl, {
+    // Для файлов используем multipart/form-data
+    const contentType = event.headers['content-type'] || '';
+    const isMultipart = contentType.includes('multipart/form-data');
+
+    const fetchOptions = {
       method: event.httpMethod,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(event.headers.authorization && { 'Authorization': event.headers.authorization }),
-        ...(event.headers['x-auth-token'] && { 'x-auth-token': event.headers['x-auth-token'] })
-      },
-      body: event.body ? event.body : undefined
+      headers: {}
+    };
+
+    // Копируем заголовки, кроме host и connection
+    Object.keys(event.headers).forEach(key => {
+      if (!['host', 'connection'].includes(key.toLowerCase())) {
+        fetchOptions.headers[key] = event.headers[key];
+      }
     });
 
+    // Для multipart передаем тело как есть
+    if (event.body && !isMultipart) {
+      fetchOptions.body = event.body;
+    } else if (event.body && isMultipart) {
+      // Для multipart используем Buffer
+      fetchOptions.body = Buffer.from(event.body, 'base64');
+    }
+
+    const response = await fetch(backendUrl, fetchOptions);
     const data = await response.text();
 
     return {

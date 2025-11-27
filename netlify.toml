@@ -1,6 +1,18 @@
 [build]
   functions = "netlify/functions"
 
+# Добавьте эти настройки для функций
+[functions]
+  # Увеличиваем лимит размера запроса до 15MB
+  node_bundler = "esbuild"
+
+# Настройки для конкретной функции proxy
+[[functions]]
+  path = "netlify/functions/proxy.js"
+  [functions.settings]
+    # Максимальный размер тела запроса в MB
+    max_body_size = 15
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/proxy/api/:splat"
