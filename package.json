@@ -4,5 +4,8 @@
   "description": "CORS Proxy for News Backend",
   "dependencies": {
     "node-fetch": "^2.6.7"
+  },
+   "scripts": {
+    "build": "echo 'Building Netlify Functions'"
   }
 }
