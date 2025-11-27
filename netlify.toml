@@ -3,11 +3,8 @@
 
 [functions]
   node_bundler = "esbuild"
-
-[[functions]]
-  path = "netlify/functions/proxy.js"
-  [functions.settings]
-    max_body_size = 15
+  
+  max_body_size = 15
 
 [[redirects]]
   from = "/api/*"
