@@ -3,8 +3,6 @@
 
 [functions]
   node_bundler = "esbuild"
-  
-  max_body_size = 15
 
 [[redirects]]
   from = "/api/*"
