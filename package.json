@@ -1,0 +1,8 @@
+{
+  "name": "news-cors-proxy",
+  "version": "1.0.0",
+  "description": "CORS Proxy for News Backend",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
