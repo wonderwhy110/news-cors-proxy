@@ -2,14 +2,14 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
-  // Разрешаем CORS для всех доменов
+  // РАСШИРЬТЕ методы - добавьте PATCH
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-auth-token',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS' // ← ДОБАВЬТЕ PATCH
   };
 
-  // Обрабатываем preflight OPTIONS запрос
+  // OPTIONS запрос
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -19,17 +19,17 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Формируем URL для вашего бэкенда
     const backendUrl = `http://176.123.167.59:3000${event.path.replace('/.netlify/functions/proxy', '')}${event.rawQuery ? '?' + event.rawQuery : ''}`;
     
     console.log('Proxying to:', backendUrl, 'Method:', event.httpMethod);
 
-    // Проксируем запрос к бэкенду
+    // Проксируем запрос (включая PATCH)
     const response = await fetch(backendUrl, {
       method: event.httpMethod,
       headers: {
         'Content-Type': 'application/json',
-        ...(event.headers.authorization && { 'Authorization': event.headers.authorization })
+        ...(event.headers.authorization && { 'Authorization': event.headers.authorization }),
+        ...(event.headers['x-auth-token'] && { 'x-auth-token': event.headers['x-auth-token'] })
       },
       body: event.body ? event.body : undefined
     });
